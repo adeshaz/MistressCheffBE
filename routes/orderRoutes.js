@@ -1,6 +1,6 @@
 // routes/orderRoutes.js
 import express from "express";
-import Order from "../models/order.js";
+import OrderModel from "../models/order.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -26,7 +26,7 @@ router.post("/", authMiddleware, async (req, res) => {
 // 👉 Get logged-in user’s orders
 router.get("/my", authMiddleware, async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const orders = await OrderModel.find({ user: req.user._id }).sort({ createdAt: -1 });
     res.json({ success: true, orders });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -36,7 +36,7 @@ router.get("/my", authMiddleware, async (req, res) => {
 // 👉 Get all orders (admin)
 router.get("/", async (req, res) => {
   try {
-    const orders = await Order.find().populate("user", "firstName lastName email");
+    const orders = await OrderModel.find().populate("user", "firstName lastName email");
     res.json({ success: true, orders });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -50,7 +50,7 @@ router.get("/", async (req, res) => {
 // 👉 Track order by paymentRef
 router.get("/track/:paymentRef", async (req, res) => {
   try {
-    const order = await Order.findOne({ paymentRef: req.params.paymentRef });
+    const order = await OrderModel.findOne({ paymentRef: req.params.paymentRef });
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
     res.json({ success: true, order });
@@ -68,7 +68,7 @@ router.get("/user-orders", async (req, res) => {
     let filter = { email };
     if (paymentRef) filter.paymentRef = paymentRef; // ✅ support both email + paymentRef
 
-    const orders = await Order.find(filter).sort({ createdAt: -1 });
+    const orders = await OrderModel.find(filter).sort({ createdAt: -1 });
     if (!orders.length) return res.status(404).json({ success: false, message: "No orders found" });
 
     res.json({ success: true, orders });
