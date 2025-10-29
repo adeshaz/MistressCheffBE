@@ -5,7 +5,8 @@ import jwt from "jsonwebtoken";
 import Admin from "../models/Admin.js"; // 👈 make sure you have an Admin model
 import dotenv from "dotenv";
 import adminAuthMiddleware from "../middleware/adminAuthMiddleware.js";
-import Order from "../models/Order.js";
+
+import OrderModel from "../models/order.js";
 
 
 dotenv.config();
@@ -66,7 +67,7 @@ router.post("/login", async (req, res) => {
 // ✅ Get all orders (Admin only)
 router.get("/", adminAuthMiddleware, async (req, res) => {
   try {
-    const orders = await Order.find().sort({ createdAt: -1 });
+    const orders = await OrderModel.find().sort({ createdAt: -1 });
     res.json({ success: true, orders });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server error" });
@@ -78,7 +79,7 @@ router.get("/", adminAuthMiddleware, async (req, res) => {
 router.put("/orders/:id/status", adminAuthMiddleware, async (req, res) => {
   try {
     const { status } = req.body; // e.g. { status: "Processing" }
-    const order = await Order.findById(req.params.id);
+    const order = await OrderModel.findById(req.params.id);
 
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found" });
